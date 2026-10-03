@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#214c4d">
+  <meta name="description" content="Тихий переезд: уютный город, большие приключения. Доставляйте, исследуйте и создавайте свою компанию.">
+  <title>Тихий переезд — Городские истории</title>
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+  <canvas id="world" aria-label="Трёхмерный город. Управление: WASD или стрелки, E — действие."></canvas>
+  <div id="vignette" aria-hidden="true"></div>
+  <div id="hud" class="hud">
+    <header>
+      <a class="brand" href="#" id="brand" aria-label="Тихий переезд: об игре"><img src="icon.svg" alt="" width="44" height="44"><span>Тихий переезд<small>ГОРОДСКИЕ ИСТОРИИ</small></span></a>
+      <div class="stats"><span class="wallet"><i data-icon="wallet"></i><b id="money">350 ₽</b></span><button id="career" class="level-chip" title="Карьера и достижения"><i data-icon="star"></i><b id="level">1</b><small>уровень</small></button><button id="pause" class="icon-button" title="Пауза и настройки" aria-label="Пауза и настройки"><i data-icon="pause"></i></button></div>
+    </header>
+    <aside id="job" class="job panel">
+      <div class="card-overline"><span id="jobEyebrow">ВАША МАЛЕНЬКАЯ КОМПАНИЯ</span><button id="collapseJob" class="icon-button" aria-expanded="true" aria-label="Свернуть задание"><i data-icon="chevron"></i></button></div>
+      <h1 id="jobTitle">Город ждёт вас</h1>
+      <p id="jobText">Новые адреса, интересные заказы и немного приключений по пути.</p>
+      <div class="job-line"><span id="cargoTag" class="chip">СВОБОДНАЯ ПОЕЗДКА</span><b id="reward"></b></div>
+      <div id="jobSteps" class="steps"><div id="step1"><span class="step-number">1</span><span id="step1Text">Забрать заказ</span></div><div id="step2"><span class="step-number">2</span><span id="step2Text">Доставить с заботой</span></div></div>
+      <div id="loadBar" class="progress hidden"><i></i></div>
+      <button id="action" class="primary">Выбрать заказ <span>→</span></button>
+      <button id="autopilot" class="route-button hidden"><i data-icon="route"></i><span>Автопилот</span><kbd>N</kbd></button>
+      <div id="distance" class="distance">Своя история начинается с одного заказа</div>
+    </aside>
+    <div id="place"><span class="live-dot"></span><b id="district">Центр и парк</b><small id="gameClock">16:10 · тёплый день</small></div>
+    <div class="camera-tools"><button id="rotateLeft" aria-label="Повернуть камеру влево" title="Камера влево · Q"><i data-icon="rotate-left"></i></button><button id="rotateRight" aria-label="Повернуть камеру вправо" title="Камера вправо · R"><i data-icon="rotate-right"></i></button><span></span><button id="zoomIn" aria-label="Приблизить"><i data-icon="plus"></i></button><button id="zoomOut" aria-label="Отдалить"><i data-icon="minus"></i></button></div>
+    <aside class="map-panel panel"><div class="map-heading"><span><i class="live-dot"></i> ВАШ ГОРОД</span><button id="overview" class="icon-button" title="Большая карта · M" aria-label="Большая карта"><i data-icon="expand"></i></button></div><canvas id="minimap" width="420" height="340" aria-label="Карта города. Золотой маркер — цель, мятная линия — маршрут."></canvas><div class="map-key"><span><i></i> Вы</span><span><i></i> Цель</span><span><i></i> Находки</span></div></aside>
+    <div id="drivingHint" class="driving-hint"><span><kbd>W A S D</kbd> ехать</span><span><kbd>E</kbd> действие</span><span><kbd>Shift</kbd> ускорение</span></div>
+    <div class="vehicle-badge"><span id="vehicleIcon">🛴</span><div><small>ВАШ ТРАНСПОРТ</small><b id="vehicleName">Самокат «Ветер»</b><div class="boost-track"><i id="boostFill"></i></div></div></div>
+    <nav class="dock" aria-label="Разделы игры"><button id="jobs"><i data-icon="box"></i><span>Заказы</span></button><button id="shop"><i data-icon="garage"></i><span>Гараж</span></button><button id="explore"><i data-icon="compass"></i><span>Открытия</span></button><button id="friends"><i data-icon="friends"></i><span>Друзья</span></button></nav>
+    <div id="touch"><div id="joystick" aria-label="Джойстик движения"><div class="stick-ring"></div><div id="stick"></div><span>ЕХАТЬ</span></div><div class="touch-actions"><button id="boost" aria-label="Ускорение"><i data-icon="bolt"></i></button><button id="touchAction">Действие</button></div></div>
+    <button id="cancelJob" class="cancel-link hidden">Отменить задание</button>
+  </div>
+  <div id="targetLabel" aria-hidden="true"></div><div id="worldLabels" aria-hidden="true"></div>
+  <div id="toast" role="status" aria-live="polite"></div>
+  <div id="storageWarning" class="storage-warning hidden" role="alert">Автосохранение недоступно. Скачайте копию прогресса в настройках.</div>
+  <div id="modal" class="overlay hidden"><section class="dialog" role="dialog" aria-modal="true" aria-labelledby="modalTitle" tabindex="-1"><button id="close" class="close" aria-label="Закрыть окно"><i data-icon="x"></i></button><div id="modalContent"></div></section></div>
+  <div id="welcome" class="welcome-screen"><section class="intro" aria-labelledby="welcomeTitle"><div class="edition"><span></span> ГОРОДСКИЕ ИСТОРИИ · 4.0</div><h2 id="welcomeTitle">Маленький город.<br><em>Большие истории.</em></h2><p>За первым поворотом — новый адрес.<br>За каждой доставкой — чья-то история.<br>Устройтесь поудобнее. Здесь вам рады.</p><div class="intro-facts"><span><b>13</b> районов</span><span><b>8</b> видов работы</span><span><b>∞</b> тихих приключений</span></div><button id="start" class="primary">Начать свою историю <span>→</span></button><button id="freeRoam" class="text-button">Просто покататься</button><small>Игра сохраняется автоматически на этом устройстве</small></section><div class="welcome-caption"><span>СДЕЛАНО ДЛЯ МАЛЕНЬКИХ ПЕРЕРЫВОВ</span><b>Без спешки. С заботой.</b></div></div>
+  <noscript>Для игры нужен JavaScript. Включите его в настройках браузера.</noscript>
+  <script src="config.js"></script>
+  <script src="vendor/qrcode.min.js"></script>
+  <script src="data.js"></script>
+  <script src="core.js"></script>
+  <script src="engine.js"></script>
+  <script src="game.js"></script>
+  <script src="telegram.js" defer></script>
+</body>
+</html>
